@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>try{if(localStorage.getItem('cch-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IITD Campus Energy · Historical Data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f6f8; --card:#fff; --ink:#15171d; --muted:#6a7080; --line:#e3e6ec;
+  --accent:#9b6bff; --normal:#1f9d63; --attention:#d99a00; --critical:#d6453d;
+  --serif:'Instrument Serif',Georgia,'Times New Roman',serif;
+  --sans:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--sans);overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:12px}
+
+
+.bar{position:fixed;inset:0 0 auto 0;z-index:10;display:flex;justify-content:space-between;align-items:center;
+  padding:18px clamp(20px,5vw,64px);backdrop-filter:blur(14px);background:rgba(245,246,248,.72);
+  border-bottom:1px solid transparent;transition:border-color .4s var(--ease)}
+.bar.stuck{border-color:var(--line)}
+.bar b{font-family:var(--serif);font-weight:400;font-size:1.35rem}
+.bar span{color:var(--muted);font-size:.85rem}
+.aboutbtn{font:500 .9rem var(--sans);padding:8px 22px;border-radius:99px;border:1px solid var(--line);background:#fff;cursor:pointer;transition:background .4s var(--ease),color .4s,transform .3s var(--ease)}
+.aboutbtn:hover{background:var(--ink);color:#fff;transform:scale(1.05)}
+
+
+.shape{position:absolute;pointer-events:none;will-change:transform}
+.diamond{width:var(--s,150px);aspect-ratio:1;background:var(--ink);border-radius:18%;transform:rotate(45deg);animation:drift 14s ease-in-out infinite alternate}
+.diamond.line{background:none;border:1.5px solid var(--ink)}
+.circle{width:var(--s,90px);aspect-ratio:1;border-radius:50%;background:var(--accent);animation:drift 11s ease-in-out infinite alternate-reverse}
+.square{width:var(--s,28px);aspect-ratio:1;background:var(--accent);animation:spin 18s linear infinite}
+@keyframes drift{from{translate:0 0;rotate:0deg}to{translate:18px -22px;rotate:12deg}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;
+  padding:120px clamp(20px,5vw,64px) 60px;overflow:hidden}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(4rem,15vw,13rem);line-height:.9;letter-spacing:-.03em;position:relative;z-index:1}
+.hero h1 .l{display:block;overflow:hidden;padding-bottom:.06em}
+.hero h1 .l i{display:block;font-style:normal;transform:translateY(105%);animation:rise 1.1s var(--ease) forwards}
+.hero h1 .l:nth-child(2) i{animation-delay:.14s;padding-left:clamp(0px,12vw,200px)}
+@keyframes rise{to{transform:none}}
+.hero p.cap{max-width:300px;font-size:.92rem;color:var(--muted);margin-bottom:28px;opacity:0;animation:fade .9s .6s var(--ease) forwards}
+.hero p.cap.r{align-self:flex-end;margin:32px 8vw 0 0;animation-delay:.85s}
+@keyframes fade{to{opacity:1}}
+.summary{display:flex;gap:28px;flex-wrap:wrap;margin-top:40px;opacity:0;animation:fade .9s 1.05s var(--ease) forwards}
+.summary div{display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--muted)}
+.summary strong{font:400 2rem/1 var(--serif);color:var(--ink);min-width:1ch}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--c,var(--muted))}
+.hint{position:absolute;bottom:26px;left:50%;translate:-50% 0;width:1px;height:46px;background:linear-gradient(var(--ink),transparent);animation:hint 2s ease-in-out infinite}
+@keyframes hint{0%,100%{opacity:.2;transform:scaleY(.5);transform-origin:top}50%{opacity:1;transform:scaleY(1)}}
+
+
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.stage{position:relative;height:clamp(200px,38vw,400px);margin:10px 0;z-index:1;--S:min(26vw,260px)}
+.word{position:absolute;top:50%;left:0;white-space:nowrap;font:400 clamp(4rem,15vw,13rem)/1 var(--serif);letter-spacing:-.03em;will-change:transform;z-index:1}
+.blk{position:absolute;top:50%;width:var(--S);height:var(--S);margin:calc(var(--S)/-2) 0 0 calc(var(--S)/-2);left:66%;z-index:3;transition:left 1.3s cubic-bezier(.65,0,.25,1)}
+.box{position:absolute;inset:0;transition:transform 1.3s cubic-bezier(.65,0,.25,1)}
+.box>*{position:absolute;transition:border-radius 1.3s cubic-bezier(.65,0,.25,1)}
+.face{inset:0;background:#fff;box-shadow:0 24px 50px -24px rgba(30,30,60,.35)}
+.wire{inset:-6% 6% 6% -6%;border:1.5px solid var(--ink)}
+.core{width:26%;height:26%;right:16%;bottom:16%;background:var(--accent)}
+.blk.round .face,.blk.round .wire{border-radius:50%}
+.acc{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.acc i{position:absolute;display:grid;place-items:center;will-change:transform}
+.cap2{max-width:300px;font-size:.92rem;color:var(--muted);margin-bottom:12px;position:relative;z-index:4}
+.cap2.r{align-self:flex-end;margin:12px 8vw 0 0}
+@media(max-width:760px){.cap2.r{align-self:flex-start;margin-right:0}}
+
+
+main{padding:0 clamp(20px,5vw,64px) 120px}
+.row{display:grid;gap:clamp(20px,3vw,40px);margin-bottom:clamp(20px,3vw,40px)}
+.row.two{grid-template-columns:repeat(2,1fr)}
+.reveal{opacity:0;transform:translateY(46px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.row.two .reveal:nth-child(2){transition-delay:.12s}
+
+.bld{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:340px;
+  background:var(--card);border:1px solid var(--line);border-radius:28px;padding:clamp(24px,3vw,40px);overflow:hidden;
+  transition:transform .5s var(--ease),box-shadow .5s var(--ease),border-color .5s}
+.bld.wide{min-height:480px}
+.bld:hover{transform:translateY(-6px);box-shadow:0 30px 60px -28px rgba(30,30,60,.28);border-color:#d3d7e0}
+.bld .shape{transition:transform .8s var(--ease)}
+.bld:hover .shape.diamond{transform:rotate(90deg) scale(1.08)}
+.bld:hover .shape.circle{transform:translate(-14px,10px) scale(1.1)}
+.bld h2{font-family:var(--serif);font-weight:400;font-size:clamp(3.6rem,9vw,8.5rem);line-height:.92;letter-spacing:-.025em;position:relative;z-index:1}
+.bld.half h2{font-size:clamp(3rem,6.5vw,6.5rem)}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;position:relative;z-index:1}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:6px 14px 6px 12px;border-radius:99px;font-size:.85rem;font-weight:500;
+  background:color-mix(in srgb,var(--c) 12%,#fff);color:color-mix(in srgb,var(--c) 70%,#000)}
+.pill .dot{background:var(--c);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--c) 0%,transparent);opacity:.55}0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 40%,transparent)}}
+.go{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;background:#fff;
+  transition:background .4s var(--ease),color .4s,transform .5s var(--ease)}
+.go svg{width:18px;transition:transform .5s var(--ease)}
+.bld:hover .go{background:var(--ink);color:#fff;transform:scale(1.08)}
+.bld:hover .go svg{transform:rotate(-45deg)}
+.stats{display:flex;gap:clamp(24px,5vw,64px);flex-wrap:wrap;align-items:flex-end;position:relative;z-index:1;margin-top:28px}
+.stat small{display:block;color:var(--muted);font-size:.82rem}
+.stat b{font:400 clamp(2rem,3.4vw,3rem)/1.1 var(--serif);letter-spacing:-.01em}
+.stat b em{font:500 .9rem var(--sans);font-style:normal;color:var(--muted);margin-left:5px}
+.ts{margin-left:auto;font-size:.8rem;color:var(--muted);text-align:right}
+.skel{display:inline-block;width:5ch;height:.9em;border-radius:6px;background:linear-gradient(90deg,#eceef2,#f7f8fa,#eceef2);background-size:200%;animation:sh 1.4s linear infinite;vertical-align:middle}
+@keyframes sh{to{background-position:-200%}}
+
+.err{display:none;margin:0 0 28px;padding:16px 20px;border:1px solid #f0c8c5;background:#fff4f3;border-radius:16px;font-size:.92rem}
+.err.show{display:flex;gap:16px;align-items:center;justify-content:space-between}
+.err button{font:500 .88rem var(--sans);padding:8px 16px;border-radius:99px;border:0;background:var(--ink);color:#fff;cursor:pointer;transition:transform .3s var(--ease)}
+.err button:hover{transform:scale(1.05)}
+.soon{position:relative;background:var(--card);border:1px dashed var(--line);border-radius:28px;padding:clamp(24px,3vw,40px);overflow:hidden}
+.soon h3{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,4vw,3.2rem);line-height:1;letter-spacing:-.02em;margin:14px 0 10px;position:relative;z-index:1}
+.soon p{color:var(--muted);font-size:.92rem;max-width:46ch;position:relative;z-index:1}
+.tag{display:inline-block;padding:6px 14px;border-radius:99px;font-size:.8rem;font-weight:500;background:color-mix(in srgb,var(--accent) 14%,#fff);color:color-mix(in srgb,var(--accent) 70%,#000);position:relative;z-index:1}
+[data-theme="dark"] .tag{background:color-mix(in srgb,var(--accent) 24%,#171a20);color:color-mix(in srgb,var(--accent) 78%,#fff)}
+.uphead{font-family:var(--serif);font-weight:400;font-size:clamp(2.6rem,6vw,5rem);line-height:1;letter-spacing:-.025em;margin-bottom:clamp(20px,3vw,36px)}
+footer{padding:0 clamp(20px,5vw,64px) 48px;color:var(--muted);font-size:.85rem}
+
+@media(max-width:760px){.row.two{grid-template-columns:1fr}.bld,.bld.wide{min-height:300px}.ts{margin-left:0;text-align:left;width:100%}.hero p.cap.r{align-self:flex-start;margin-right:0}}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .reveal,.hero h1 .l i,.hero p.cap,.summary{opacity:1;transform:none}
+}
+:root{color-scheme:light}
+[data-theme="dark"]{color-scheme:dark;--bg:#101216;--card:#171a20;--ink:#f2f4f8;--muted:#9aa1b2;--line:#2a2f3a;--accent:#b794ff}
+[data-theme="dark"] .bar{background:rgba(16,18,22,.72)}
+[data-theme="dark"] .face,[data-theme="dark"] .go{background:#1d2129}
+[data-theme="dark"] .seg{background:#20252f}
+[data-theme="dark"] .pill{background:color-mix(in srgb,var(--c) 22%,#171a20);color:color-mix(in srgb,var(--c) 75%,#fff)}
+[data-theme="dark"] .skel{background:linear-gradient(90deg,#22262f,#2b303c,#22262f);background-size:200%}
+[data-theme="dark"] .err{background:#2a1512;border-color:#5a2320}
+[data-theme="dark"] .more,[data-theme="dark"] .aboutbtn{background:#1d2129}
+[data-theme="dark"] .atable tbody tr:hover td{background:#22262f}
+[data-theme="dark"] .atable tr.sel td{background:#2c2340}
+[data-theme="dark"] .bld:hover{border-color:#3a4150}
+[data-theme="dark"] .tile{background:#1b1f27}
+[data-theme="dark"] .grid6 a{background:#e8ebf2;color:#15171d}
+.bright{display:flex;align-items:center;gap:10px}
+.sw{position:relative;display:inline-block;width:52px;height:28px;cursor:pointer;flex:none}
+.sw input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.sw span{position:absolute;inset:0;border-radius:99px;background:#dfe3ea;border:1px solid var(--line);transition:background .4s var(--ease)}
+.sw span::after{content:'\263e';position:absolute;top:2px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:13px;color:#15171d;transition:transform .4s var(--ease);box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.sw input:checked+span{background:var(--ink)}
+.sw input:checked+span::after{content:'\2600';transform:translateX(24px)}
+.sw input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+[data-theme="dark"] .sw span{background:#2a2f3a}
+</style>
+</head>
+<body>
+
+<header class="bar" id="bar"><b>Sustainable Campus Dashboard</b><span class="bright"><a class="aboutbtn" href="/about">About</a><label class="sw" title="Dark mode"><input type="checkbox" id="themeT"><span></span></label></span></header>
+
+<section class="hero" id="hero">
+  <div class="acc" id="acc" aria-hidden="true"></div>
+  <p class="cap2" id="capA">Energy History For Six Building Groups At IIT Delhi, Scored For Unusual Consumption.</p>
+  <h1 class="sr">Campus Energy</h1>
+  <div class="stage" id="stage" aria-hidden="true">
+    <div class="blk" id="blk"><div class="box"><div class="wire"></div><div class="face"></div><div class="core"></div></div></div>
+  </div>
+  <p class="cap2 r" id="capB">Everything Here Is Historical Data. Statuses Describe Anomaly And Energy Health, Not Confirmed Faults.</p>
+  <div class="summary" id="summary" aria-live="polite">
+    <div><span class="dot" style="--c:var(--normal)"></span><strong data-n="normal">&ndash;</strong>Normal</div>
+    <div><span class="dot" style="--c:var(--attention)"></span><strong data-n="attention">&ndash;</strong>Attention</div>
+    <div><span class="dot" style="--c:var(--critical)"></span><strong data-n="critical">&ndash;</strong>Critical</div>
+  </div>
+  <div class="hint" aria-hidden="true"></div>
+</section>
+
+<main>
+</main>
+  <div class="err" id="err" role="alert"><span id="errmsg">Couldn't Load Building Data From /api/buildings.</span><button id="retry">Try Again</button></div>
+
+  <div class="row"><a class="bld wide reveal" data-id="a-block"></a></div>
+  <div class="row"><a class="bld wide reveal" data-id="library"></a></div>
+  <div class="row two">
+    <a class="bld half reveal" data-id="c-block"></a>
+    <a class="bld half reveal" data-id="b-block"></a>
+  </div>
+  <div class="row two">
+    <a class="bld half reveal" data-id="hostels"></a>
+    <a class="bld half reveal" data-id="mess"></a>
+  </div>
+
+  <div class="uphead reveal">Coming Next</div>
+  <div class="row two">
+    <div class="soon reveal">
+      <span class="tag">Upcoming Feature</span>
+      <h3>Recommendation Engine</h3>
+      <p>Rule-Based Actions Plugged Into Each Building's Insights Endpoint. Flagged Hours Become Plain-Language Next Steps Instead Of Raw Scores.</p>
+    </div>
+    <div class="soon reveal">
+      <span class="tag">Upcoming Feature</span>
+      <h3>Anomaly Simulation</h3>
+      <p>Synthetic Drop, Spike, And Outage Injection On Clean Stretches. Measures Detector Recall Before Any Flag Is Trusted For Real Decisions.</p>
+    </div>
+  </div>
+</main>
+
+<footer>Built by A.U.S.T.</footer>
+
+<script>
+(function(){
+  var BUILDING_URL = function(id){ return '/building/' + id; };
+  var RATE_IS_FRACTION = true;
+  var FALLBACK_NAMES = {'a-block':'A Block','library':'Library','c-block':'C Block','b-block':'B Block','hostels':'Hostels','mess':'Mess'};
+  var STATUS = {
+    normal:{label:'Normal',color:'var(--normal)'},
+    attention:{label:'Attention',color:'var(--attention)'},
+    critical:{label:'Critical',color:'var(--critical)'}
+  };
+  var SHAPES = {
+    'a-block':'<i class="shape diamond" style="--s:210px;right:16%;top:14%"></i><i class="shape diamond line" style="--s:210px;right:14%;top:11%"></i><i class="shape square" style="right:40%;top:12%"></i>',
+    'library':'<i class="shape circle" style="--s:180px;right:12%;top:18%"></i><i class="shape diamond line" style="--s:120px;right:26%;bottom:18%"></i>',
+    'c-block':'<i class="shape diamond" style="--s:110px;right:12%;top:22%"></i><i class="shape square" style="right:34%;top:14%"></i>',
+    'b-block':'<i class="shape circle" style="--s:100px;right:10%;top:20%"></i><i class="shape diamond line" style="--s:90px;right:32%;top:30%"></i>',
+    'hostels':'<i class="shape diamond line" style="--s:120px;right:10%;top:20%"></i><i class="shape circle" style="--s:46px;right:34%;top:16%"></i>',
+    'mess':'<i class="shape square" style="--s:40px;right:14%;top:18%"></i><i class="shape diamond" style="--s:100px;right:26%;top:30%"></i>'
+  };
+  var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function num(v){ return typeof v === 'number' && isFinite(v) ? v : null; }
+  function decimals(v){ return Math.abs(v) >= 100 ? 0 : 1; }
+  function fmtTime(ts){
+    if(!ts) return 'No Reading Yet';
+    var d = new Date(ts); if(isNaN(d)) return String(ts);
+    return d.toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  }
+  function counter(el){
+    var to = parseFloat(el.dataset.to), dp = parseInt(el.dataset.dp||'0',10);
+    if(reduce){ el.textContent = to.toFixed(dp); return; }
+    var t0 = performance.now(), dur = 1400;
+    (function tick(t){
+      var p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,4);
+      el.textContent = (to*e).toFixed(dp);
+      if(p<1) requestAnimationFrame(tick); else el.textContent = to.toFixed(dp);
+    })(t0);
+  }
+  function numHtml(v,dp,unit){
+    if(v===null) return '<b>–</b>';
+    return '<b><span class="cnt" data-to="'+v+'" data-dp="'+dp+'">0</span>'+(unit?'<em>'+unit+'</em>':'')+'</b>';
+  }
+
+  var cards = {};
+  document.querySelectorAll('.bld').forEach(function(a){
+    var id = a.dataset.id; cards[id] = a;
+    a.href = BUILDING_URL(id);
+    a.setAttribute('aria-label', FALLBACK_NAMES[id] + ' energy details');
+    a.innerHTML = SHAPES[id] +
+      '<div class="top"><span class="pill" style="--c:var(--muted)"><span class="dot"></span>Loading</span><span class="go">'+ARROW+'</span></div>' +
+      '<div><h2>'+FALLBACK_NAMES[id]+'</h2>' +
+      '<div class="stats"><div class="stat"><small>Anomaly Rate</small><span class="skel"></span></div>' +
+      '<div class="stat"><small>Latest Energy</small><span class="skel"></span></div></div></div>';
+  });
+
+  function fill(b){
+    var a = cards[b.id]; if(!a) return;
+    var s = STATUS[b.status] || {label:'Status Unavailable',color:'var(--muted)'};
+    var rate = num(b.anomaly_rate); if(rate!==null && RATE_IS_FRACTION) rate *= 100;
+    var en = num(b.latest_energy_kwh);
+    a.setAttribute('aria-label', (b.name||FALLBACK_NAMES[b.id])+', '+s.label+' energy health');
+    a.querySelector('.top').innerHTML =
+      '<span class="pill" style="--c:'+s.color+'"><span class="dot"></span>'+s.label+'</span><span class="go">'+ARROW+'</span>';
+    a.querySelector('h2').textContent = b.name || FALLBACK_NAMES[b.id];
+    a.querySelector('.stats').innerHTML =
+      '<div class="stat"><small>Anomaly Rate</small>'+numHtml(rate,2,'%')+'</div>' +
+      '<div class="stat"><small>Latest Energy</small>'+(en===null?'<b>–</b>':numHtml(en,decimals(en),'kWh'))+'</div>' +
+      '<div class="ts">Latest Reading<br>'+fmtTime(b.latest_timestamp)+'</div>';
+    a.dataset.ready = '1';
+    if(a.classList.contains('in')) a.querySelectorAll('.cnt').forEach(counter);
+  }
+
+  function summary(list){
+    var c = {normal:0,attention:0,critical:0};
+    list.forEach(function(b){ if(c[b.status]!==undefined) c[b.status]++; });
+    document.querySelectorAll('#summary strong').forEach(function(el){
+      el.dataset.to = c[el.dataset.n]; el.dataset.dp = 0; counter(el);
+    });
+  }
+
+  var errBox = document.getElementById('err');
+  function load(){
+    errBox.classList.remove('show');
+    fetch('/api/buildings')
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(list){ list.forEach(fill); summary(list); })
+      .catch(function(e){
+        document.getElementById('errmsg').textContent = "Couldn't Load Building Data From /api/buildings ("+e.message+"). Check That The Flask Backend Is Running.";
+        errBox.classList.add('show');
+      });
+  }
+  document.getElementById('retry').onclick = load;
+  load();
+  var themeT=document.getElementById('themeT');
+  themeT.checked=document.documentElement.dataset.theme==='dark';
+  themeT.onchange=function(){
+    document.documentElement.dataset.theme=themeT.checked?'dark':'';
+    try{localStorage.setItem('cch-theme',themeT.checked?'dark':'light')}catch(e){}
+  };
+
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting) return;
+      e.target.classList.add('in'); io.unobserve(e.target);
+      e.target.querySelectorAll('.cnt').forEach(counter);
+    });
+  },{threshold:.18});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+  var bar = document.getElementById('bar');
+  addEventListener('scroll', function(){ bar.classList.toggle('stuck', scrollY>20); },{passive:true});
+  if(!reduce){
+    var ps = document.querySelectorAll('[data-p]'), hero = document.querySelector('.hero'), raf = 0, mx = 0, my = 0;
+    hero.addEventListener('pointermove', function(e){
+      mx = e.clientX/innerWidth-.5; my = e.clientY/innerHeight-.5;
+      if(!raf) raf = requestAnimationFrame(function(){
+        raf = 0;
+        ps.forEach(function(el){ var k = +el.dataset.p; el.style.transform = 'translate('+mx*k+'px,'+my*k+'px)'; });
+      });
+    });
+  }
+
+  (function(){
+    var stage=document.getElementById('stage'), blk=document.getElementById('blk'), box=blk.querySelector('.box'),
+        acc=document.getElementById('acc'), capA=document.getElementById('capA'), capB=document.getElementById('capB');
+    var W=['A Block','Library','C Block','B Block','Hostels','Mess'];
+    var NAMES=['A Block','Library','C Block','B Block','Hostels','Mess'];
+    var X=[66,86,70,86,66,84], STEP=3200, i=-1, rot=0, prevX=66;
+    var ARR='<svg width="60%" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+    function swap(el,txt){
+      if(reduce){el.textContent=txt;return;}
+      el.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translateY(-8px)'}],{duration:260,fill:'forwards'}).onfinish=function(){
+        el.textContent=txt;
+        el.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:500,easing:'cubic-bezier(.2,.7,.2,1)',fill:'forwards'});
+      };
+    }
+    function word(t){
+      var w=document.createElement('div'); w.className='word'; w.textContent=t; stage.appendChild(w);
+      var Wd=stage.clientWidth;
+      if(reduce){ w.style.transform='translateY(-50%)'; return; }
+      var y='translateY(-50%) ';
+      w.animate([
+        {transform:y+'translateX('+(Wd*1.05)+'px)',easing:'cubic-bezier(.16,.8,.3,1)'},
+        {transform:y+'translateX(0)',offset:.25,easing:'linear'},
+        {transform:y+'translateX('+(-Wd*.06)+'px)',offset:.62,easing:'cubic-bezier(.5,0,.9,.6)'},
+        {transform:y+'translateX('+(-Wd*1.4)+'px)'}
+      ],{duration:4400,fill:'forwards'}).onfinish=function(){w.remove();};
+    }
+    function accents(dir){
+      if(reduce) return;
+      for(var k=0;k<5;k++){
+        var e=document.createElement('i'), t=k%3, sz=18+Math.random()*34;
+        e.style.cssText='left:'+(8+Math.random()*84)+'%;top:'+(8+Math.random()*80)+'%;width:'+sz+'px;height:'+sz+'px;';
+        if(t===0){e.style.background='var(--accent)';e.style.borderRadius='50%';}
+        else if(t===1){e.style.background='var(--ink)';e.style.borderRadius='50%';e.innerHTML=ARR;}
+        else{e.style.border='1.5px solid var(--ink)';e.style.borderRadius='18%';}
+        acc.appendChild(e);
+        var rz=t===2?45:0, d=-dir*(10+Math.random()*14)*innerWidth/100;
+        e.animate([
+          {transform:'translateX(0) rotate('+rz+'deg) scale(0)',opacity:0},
+          {transform:'translateX('+d*.15+'px) rotate('+(rz+30)+'deg) scale(1)',opacity:1,offset:.2},
+          {transform:'translateX('+d+'px) rotate('+(rz+200)+'deg) scale(.9)',opacity:0}
+        ],{duration:2600+Math.random()*900,delay:k*90,easing:'ease-out',fill:'both'}).onfinish=function(){this.effect.target.remove();};
+      }
+    }
+    function step(){
+      i=(i+1)%W.length;
+      var nx=X[i], dir=nx>=prevX?1:-1; prevX=nx;
+      rot+=360; blk.style.left=nx+'%'; box.style.transform='rotate('+rot+'deg)';
+      blk.classList.toggle('round',i%2===1);
+      word(W[i]); accents(dir);
+      swap(capA,'Block '+(i+1)+' Of 6 \u00b7 '+NAMES[i]);
+      swap(capB,'Historical Energy And Anomaly Score For '+NAMES[i]+'.');
+    }
+    step();
+    if(!reduce) setInterval(step,3200);
+  })();
+})();
+</script>
+</body>
+</html>

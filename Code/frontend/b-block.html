@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<script>try{if(localStorage.getItem('cch-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B Block · IITD Campus Energy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#15171d;--muted:#6a7080;--line:#e3e6ec;--accent:#9b6bff;--normal:#1f9d63;--attention:#d99a00;--critical:#d6453d;
+--serif:'Instrument Serif',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;--ease:cubic-bezier(.2,.7,.2,1)}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--sans);overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:12px}
+.bar{position:fixed;inset:0 0 auto 0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:18px clamp(20px,5vw,64px);backdrop-filter:blur(14px);background:rgba(245,246,248,.72)}
+.bar b{font:400 1.35rem var(--serif)}.bar a{color:var(--muted);font-size:.9rem;display:flex;gap:8px;align-items:center}.bar a:hover{color:var(--ink)}
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:120px clamp(20px,5vw,64px) 60px;overflow:hidden}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.stage{position:relative;height:clamp(200px,38vw,400px);margin:10px 0;z-index:1;--S:min(26vw,260px)}
+.word{position:absolute;top:50%;left:0;white-space:nowrap;font:400 clamp(4rem,15vw,13rem)/1 var(--serif);letter-spacing:-.03em;will-change:transform;z-index:1}
+.blk{position:absolute;top:50%;width:var(--S);height:var(--S);margin:calc(var(--S)/-2) 0 0 calc(var(--S)/-2);left:66%;z-index:3;transition:left 1.3s cubic-bezier(.65,0,.25,1)}
+.box{position:absolute;inset:0;transition:transform 1.3s cubic-bezier(.65,0,.25,1)}
+.box>*{position:absolute;transition:border-radius 1.3s cubic-bezier(.65,0,.25,1)}
+.face{inset:0;background:#fff;box-shadow:0 24px 50px -24px rgba(30,30,60,.35)}
+.wire{inset:-6% 6% 6% -6%;border:1.5px solid var(--ink)}
+.core{width:26%;height:26%;right:16%;bottom:16%;background:var(--accent)}
+.blk.round .face,.blk.round .wire{border-radius:50%}
+.acc{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.acc i{position:absolute;display:grid;place-items:center;will-change:transform}
+.cap{max-width:320px;font-size:.92rem;color:var(--muted);position:relative;z-index:4}
+.cap.r{align-self:flex-end;margin-right:8vw}
+.pill{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;margin-bottom:14px;padding:6px 14px 6px 12px;border-radius:99px;font-size:.85rem;font-weight:500;position:relative;z-index:4;
+background:color-mix(in srgb,var(--c) 12%,#fff);color:color-mix(in srgb,var(--c) 70%,#000)}
+.pill i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+main{padding:0 clamp(20px,5vw,64px) 100px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2.4vw,32px);margin-bottom:clamp(16px,2.4vw,32px)}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:clamp(24px,3vw,40px);min-height:220px;display:flex;flex-direction:column;justify-content:space-between;
+opacity:0;transform:translateY(46px);transition:opacity .9s var(--ease),transform .9s var(--ease),box-shadow .5s}
+.tile.in{opacity:1;transform:none}.tile:nth-child(2){transition-delay:.12s}.tile:nth-child(3){transition-delay:.24s}
+.tile small{color:var(--muted);font-size:.85rem}
+.tile b{font:400 clamp(2.6rem,5vw,4.6rem)/1 var(--serif);letter-spacing:-.02em}.tile b em{font:500 1rem var(--sans);font-style:normal;color:var(--muted);margin-left:6px}
+.err{display:none;margin-bottom:24px;padding:16px 20px;border:1px solid #f0c8c5;background:#fff4f3;border-radius:16px;font-size:.92rem}.err.show{display:block}
+.nav{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(16px,2.4vw,32px)}
+.nav a{display:flex;justify-content:space-between;align-items:center;background:var(--ink);color:#fff;border-radius:28px;padding:clamp(24px,3vw,40px);transition:transform .5s var(--ease)}
+.nav a:hover{transform:translateY(-6px)}.nav small{opacity:.6;display:block}.nav b{font:400 clamp(2rem,4vw,3.4rem)/1 var(--serif)}
+.sect{margin:clamp(36px,6vw,72px) 0 0}
+.sect h3{font:400 clamp(2.2rem,4.5vw,3.4rem)/1.05 var(--serif);letter-spacing:-.02em;margin-bottom:8px}
+.sect .sub{color:var(--muted);font-size:.9rem;margin-bottom:18px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:clamp(20px,3vw,32px);opacity:0;transform:translateY(46px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.panel.in{opacity:1;transform:none}
+.seg{display:inline-flex;gap:6px;background:#eef0f4;border-radius:99px;padding:4px;margin-bottom:16px}
+.seg button{font:500 .85rem var(--sans);border:0;background:none;padding:8px 18px;border-radius:99px;cursor:pointer;color:var(--muted);transition:background .3s var(--ease),color .3s}
+.seg button.on{background:var(--ink);color:#fff}
+.seg button:hover:not(.on){color:var(--ink)}
+#chart{width:100%;height:auto;display:block}
+.atable{width:100%;border-collapse:collapse;font-size:.9rem}
+.atable th{text-align:left;color:var(--muted);font-weight:500;font-size:.8rem;padding:10px 12px;border-bottom:1px solid var(--line)}
+.atable td{padding:10px 12px;border-bottom:1px solid var(--line)}
+.atable tr:last-child td{border-bottom:0}
+.atable td.num{font-variant-numeric:tabular-nums}
+.more{margin-top:16px;font:500 .88rem var(--sans);padding:10px 24px;border-radius:99px;border:1px solid var(--line);background:#fff;cursor:pointer;transition:background .4s var(--ease),color .4s,transform .3s var(--ease)}
+.more:hover{background:var(--ink);color:#fff;transform:scale(1.04)}
+.atable thead th.sort{cursor:pointer;user-select:none;white-space:nowrap}
+.atable thead th.sort:hover{color:var(--ink)}
+.atable tbody tr{cursor:pointer}
+.atable tbody tr:hover td{background:#f4f5f9}
+.atable tr.sel td{background:#efe9ff}
+footer{padding:0 clamp(20px,5vw,64px) 48px;color:var(--muted);font-size:.85rem}
+@media(max-width:760px){.grid,.nav{grid-template-columns:1fr}.cap.r{align-self:flex-start;margin-right:0}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}.tile{opacity:1;transform:none}}
+:root{color-scheme:light}
+[data-theme="dark"]{color-scheme:dark;--bg:#101216;--card:#171a20;--ink:#f2f4f8;--muted:#9aa1b2;--line:#2a2f3a;--accent:#b794ff}
+[data-theme="dark"] .bar{background:rgba(16,18,22,.72)}
+[data-theme="dark"] .face,[data-theme="dark"] .go{background:#1d2129}
+[data-theme="dark"] .seg{background:#20252f}
+[data-theme="dark"] .pill{background:color-mix(in srgb,var(--c) 22%,#171a20);color:color-mix(in srgb,var(--c) 75%,#fff)}
+[data-theme="dark"] .skel{background:linear-gradient(90deg,#22262f,#2b303c,#22262f);background-size:200%}
+[data-theme="dark"] .err{background:#2a1512;border-color:#5a2320}
+[data-theme="dark"] .more,[data-theme="dark"] .aboutbtn{background:#1d2129}
+[data-theme="dark"] .atable tbody tr:hover td{background:#22262f}
+[data-theme="dark"] .atable tr.sel td{background:#2c2340}
+[data-theme="dark"] .bld:hover{border-color:#3a4150}
+[data-theme="dark"] .tile{background:#1b1f27}
+[data-theme="dark"] .grid6 a{background:#e8ebf2;color:#15171d}
+.bright{display:flex;align-items:center;gap:10px}
+.sw{position:relative;display:inline-block;width:52px;height:28px;cursor:pointer;flex:none}
+.sw input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.sw span{position:absolute;inset:0;border-radius:99px;background:#dfe3ea;border:1px solid var(--line);transition:background .4s var(--ease)}
+.sw span::after{content:'\263e';position:absolute;top:2px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:13px;color:#15171d;transition:transform .4s var(--ease);box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.sw input:checked+span{background:var(--ink)}
+.sw input:checked+span::after{content:'\2600';transform:translateX(24px)}
+.sw input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+[data-theme="dark"] .sw span{background:#2a2f3a}
+</style></head><body>
+<header class="bar"><b>Sustainable Campus Dashboard</b><span class="bright"><a href="/" id="back">&larr; All buildings</a><label class="sw" title="Dark mode"><input type="checkbox" id="themeT"><span></span></label></span></header>
+<section class="hero">
+  <div class="acc" id="acc" aria-hidden="true"></div>
+  <span class="pill" id="pill" style="--c:var(--muted)"><i></i>Loading</span>
+  <p class="cap" id="capA">Historical Energy and Anomaly Score for B Block.</p>
+  <h1 class="sr">B Block</h1>
+  <div class="stage" id="stage" aria-hidden="true"><div class="blk " id="blk"><div class="box"><div class="wire"></div><div class="face"></div><div class="core"></div></div></div></div>
+  <p class="cap r" id="capB">Historical data only. Status describes anomaly and energy health, not a confirmed fault.</p>
+</section>
+<main>
+  <div class="err" id="err">Couldn't load data for B Block. Check that the Flask backend is running. <button class="more" id="retry">Try Again</button></div>
+  <div class="grid">
+    <div class="tile"><small>Anomaly Rate</small><b id="rate">&ndash;</b></div>
+    <div class="tile"><small>Latest Energy</small><b id="en">&ndash;</b></div>
+    <div class="tile"><small>Latest Reading</small><b id="ts" style="font-size:1.6rem;line-height:1.2">&ndash;</b></div>
+  </div>
+  <section class="sect">
+    <h3>Historical Energy Trend</h3>
+    <p class="sub">Historical data only — masked gaps appear as breaks in the line.</p>
+    <div class="panel reveal">
+      <div class="seg" id="seg">
+        <button data-range="24h">24h</button><button data-range="7d" class="on">7d</button><button data-range="30d">30d</button><button data-range="all">All</button>
+      </div>
+      <canvas id="chart" width="960" height="240"></canvas>
+    </div>
+  </section>
+  <section class="sect">
+    <h3>Anomaly Explorer</h3>
+    <p class="sub" id="acount">Worst-First.</p>
+    <div class="panel reveal">
+      <div class="seg" id="sseg">
+        <button data-sev="p98" class="on">Top p98</button><button data-sev="p99">Top p99</button>
+      </div>
+      <table class="atable"><thead><tr><th data-k="timestamp" class="sort">Time</th><th data-k="energy_kwh" class="sort">Energy</th><th data-k="anomaly_score" class="sort">Score ▲</th><th data-k="robust_z_168" class="sort">Deviation</th></tr></thead><tbody id="abody"></tbody></table>
+      <button class="more" id="more">Show More</button>
+    </div>
+  </section>
+  <section class="sect">
+    <h3>Insights</h3>
+    <div class="panel reveal"><p class="sub" id="insights" style="margin:0">Loading…</p></div>
+  </section>
+  <nav class="nav" aria-label="Other buildings">
+    <a href="/building/c-block"><span><small>Previous</small><b>C Block</b></span>&larr;</a>
+    <a href="/building/hostels"><span><small>Next</small><b>Hostels</b></span>&rarr;</a>
+  </nav>
+</main>
+<footer>Built by A.U.S.T.: historical IITD energy records. Scores and statuses come from the analysis backend.</footer>
+<script>
+(function(){
+  var ID='b-block', NAME='B Block', RATE_IS_FRACTION=true;
+  var STATUS={normal:['Normal','var(--normal)'],attention:['Attention','var(--attention)'],critical:['Critical','var(--critical)']};
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var words=[NAME], captions=['Historical Energy and Anomaly Score for '+NAME+'.'];
+  function $(i){return document.getElementById(i)}
+
+  fetch('/api/buildings').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(l){
+    var b=l.filter(function(x){return x.id===ID})[0]; if(!b)throw 0;
+    var s=STATUS[b.status]||['Status unavailable','var(--muted)'];
+    $('pill').style.setProperty('--c',s[1]); $('pill').innerHTML='<i></i>'+s[0];
+    var r=typeof b.anomaly_rate==='number'?b.anomaly_rate*(RATE_IS_FRACTION?100:1):null;
+    var e=typeof b.latest_energy_kwh==='number'?b.latest_energy_kwh:null;
+    var d=b.latest_timestamp?new Date(b.latest_timestamp):null; if(d&&isNaN(d))d=null;
+    $('rate').innerHTML=r===null?'&ndash;':r.toFixed(2)+'<em>%</em>';
+    $('en').innerHTML=e===null?'&ndash;':e.toFixed(Math.abs(e)>=100?0:1)+'<em>kWh</em>';
+    $('ts').textContent=d?d.toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'No reading yet';
+    if(r!==null){words.push(r.toFixed(1)+'%');captions.push('Anomaly rate, '+NAME+'.');}
+    if(e!==null){words.push(Math.round(e)+' kWh');captions.push('Latest energy reading, '+NAME+'.');}
+  }).catch(function(){$('err').classList.add('show')});
+
+  var stage=$('stage'),blk=$('blk'),box=blk.querySelector('.box'),acc=$('acc'),capA=$('capA');
+  var X=[66,86,70,86,66,84],i=-1,rot=0,prevX=66;
+  var ARR='<svg width="60%" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  function swap(el,t){if(reduce){el.textContent=t;return}
+    el.animate([{opacity:1},{opacity:0,transform:'translateY(-8px)'}],{duration:260,fill:'forwards'}).onfinish=function(){el.textContent=t;
+    el.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:500,easing:'cubic-bezier(.2,.7,.2,1)',fill:'forwards'})}}
+  function word(t){var w=document.createElement('div');w.className='word';w.textContent=t;stage.appendChild(w);
+    var W=stage.clientWidth,y='translateY(-50%) ';if(reduce){w.style.transform='translateY(-50%)';return}
+    w.animate([{transform:y+'translateX('+W*1.05+'px)',easing:'cubic-bezier(.16,.8,.3,1)'},{transform:y+'translateX(0)',offset:.25,easing:'linear'},
+    {transform:y+'translateX('+-W*.06+'px)',offset:.62,easing:'cubic-bezier(.5,0,.9,.6)'},{transform:y+'translateX('+-W*1.4+'px)'}],{duration:4400,fill:'forwards'}).onfinish=function(){w.remove()}}
+  function accents(dir){if(reduce)return;for(var k=0;k<5;k++){var e=document.createElement('i'),t=k%3,sz=18+Math.random()*34;
+    e.style.cssText='left:'+(8+Math.random()*84)+'%;top:'+(8+Math.random()*80)+'%;width:'+sz+'px;height:'+sz+'px';
+    if(t===0){e.style.background='var(--accent)';e.style.borderRadius='50%'}else if(t===1){e.style.background='var(--ink)';e.style.borderRadius='50%';e.innerHTML=ARR}else{e.style.border='1.5px solid var(--ink)';e.style.borderRadius='18%'}
+    acc.appendChild(e);var rz=t===2?45:0,d=-dir*(10+Math.random()*14)*innerWidth/100;
+    e.animate([{transform:'translateX(0) rotate('+rz+'deg) scale(0)',opacity:0},{transform:'translateX('+d*.15+'px) rotate('+(rz+30)+'deg) scale(1)',opacity:1,offset:.2},{transform:'translateX('+d+'px) rotate('+(rz+200)+'deg) scale(.9)',opacity:0}],
+    {duration:2600+Math.random()*900,delay:k*90,easing:'ease-out',fill:'both'}).onfinish=function(){this.effect.target.remove()}}}
+  function step(){i=(i+1)%words.length;var nx=X[i%X.length],dir=nx>=prevX?1:-1;prevX=nx;
+    rot+=360;blk.style.left=nx+'%';box.style.transform='rotate('+rot+'deg)';blk.classList.toggle('round',(i+0)%2===1);
+    word(words[i]);accents(dir);if(i>0||words.length>1)swap(capA,captions[i])}
+  step(); if(!reduce)setInterval(step,3200);
+
+  var chart=$('chart'),CX=chart.getContext('2d');
+  function fmtT(ts){var d=new Date(ts);if(isNaN(d))return String(ts);
+    return d.toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+  function drawTrend(pts,hl){LAST=pts;
+    var W=chart.width,H=chart.height;CX.clearRect(0,0,W,H);
+    var DK=document.documentElement.dataset.theme==='dark';
+    var LC=DK?'#f2f4f8':'#15171d',GC=DK?'#2a2f3a':'#e3e6ec',TC=DK?'#9aa1b2':'#6a7080';
+    var vals=pts.filter(function(p){return typeof p.energy_kwh==='number'});
+    if(!vals.length)return;
+    var max=Math.max.apply(null,vals.map(function(p){return p.energy_kwh}))||1;
+    function X(i){return pts.length>1?i/(pts.length-1)*W:W/2}
+    function Y(v){return H-16-(v/max)*(H-36)}
+    CX.strokeStyle=GC;CX.lineWidth=1;
+    [0.25,0.5,0.75].forEach(function(f){var y=H-16-f*(H-36);CX.beginPath();CX.moveTo(0,y);CX.lineTo(W,y);CX.stroke();});
+    CX.strokeStyle=LC;CX.lineWidth=1.6;CX.beginPath();
+    var pen=false;
+    pts.forEach(function(p,i){
+      if(typeof p.energy_kwh!=='number'){pen=false;return}
+      var x=X(i),y=Y(p.energy_kwh);
+      if(pen)CX.lineTo(x,y);else CX.moveTo(x,y);
+      pen=true;
+    });
+    CX.stroke();
+    CX.fillStyle='#d6453d';
+    pts.forEach(function(p,i){
+      if(p.anomaly_flag_p98&&typeof p.energy_kwh==='number'){CX.beginPath();CX.arc(X(i),Y(p.energy_kwh),3,0,7);CX.fill();}
+    });
+    if(hl>=0&&pts[hl]&&typeof pts[hl].energy_kwh==='number'){
+      var hx=pts.length>1?hl/(pts.length-1)*W:W/2,hy=H-16-(pts[hl].energy_kwh/max)*(H-36);
+      CX.strokeStyle='#9b6bff';CX.lineWidth=2.5;CX.beginPath();CX.arc(hx,hy,7,0,7);CX.stroke();
+    }
+    CX.fillStyle=TC;CX.font='11px DM Sans,sans-serif';
+    CX.fillText(fmtT(pts[0].timestamp),4,H-3);
+    var last=fmtT(pts[pts.length-1].timestamp);
+    CX.fillText(last,W-CX.measureText(last).width-4,H-3);
+  }
+  function loadTrend(range){CUR=range;
+    document.querySelectorAll('#seg button').forEach(function(b){b.classList.toggle('on',b.dataset.range===range)});
+    fetch('/api/buildings/'+ID+'/trend?range='+range).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(t){drawTrend(t.points,-1)}).catch(function(){});
+  }
+  document.querySelectorAll('#seg button').forEach(function(b){b.onclick=function(){loadTrend(b.dataset.range)}});
+  var SEV='p98',OFF=0,CUR='7d',SORTK='anomaly_score',SORTD=-1,ROWS=[],LAST=[];
+  function rowHtml(r,i){
+    return '<tr data-i="'+i+'"><td>'+fmtT(r.timestamp)+'</td><td class="num">'+(typeof r.energy_kwh==='number'?r.energy_kwh.toFixed(1):'–')+'</td><td class="num">'+r.anomaly_score.toFixed(3)+'</td><td class="num">'+(typeof r.robust_z_168==='number'?r.robust_z_168.toFixed(1):'–')+'</td></tr>';
+  }
+  function loadAnoms(reset){
+    if(reset){OFF=0;ROWS=[];document.getElementById('abody').innerHTML='';}
+    fetch('/api/buildings/'+ID+'/anomalies?limit=20&offset='+OFF+'&severity='+SEV).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(a){
+      document.getElementById('acount').textContent='Worst-First \u00b7 '+a.total+' '+SEV+' anomalies.';
+      a.records.forEach(function(r){ROWS.push(r)});
+      OFF+=a.records.length;
+      renderRows();
+      document.getElementById('more').style.display=OFF>=a.total?'none':'';
+    }).catch(function(){});
+  }
+  document.querySelectorAll('#sseg button').forEach(function(b){b.onclick=function(){SEV=b.dataset.sev;
+    document.querySelectorAll('#sseg button').forEach(function(x){x.classList.toggle('on',x===b)});loadAnoms(true);}});
+  document.getElementById('more').onclick=function(){loadAnoms(false)};
+  var HEADS={timestamp:'Time',energy_kwh:'Energy',anomaly_score:'Score',robust_z_168:'Deviation'};
+  function paintHeads(){
+    document.querySelectorAll('.atable thead th').forEach(function(th){
+      var k=th.getAttribute('data-k');
+      th.innerHTML=HEADS[k]+(k===SORTK?(SORTD<0?' \u25b2':' \u25bc'):'');
+    });
+  }
+  function renderRows(){
+    var idx=ROWS.map(function(r,i){return i}).sort(function(a,b){
+      var x=ROWS[a][SORTK],y=ROWS[b][SORTK];
+      if(x===null||x===undefined)return 1;
+      if(y===null||y===undefined)return -1;
+      if(SORTK==='timestamp')return (x<y?-1:x>y?1:0)*SORTD;
+      return (x-y)*SORTD;
+    });
+    document.getElementById('abody').innerHTML=idx.map(function(i){return rowHtml(ROWS[i],i)}).join('');
+  }
+  document.querySelectorAll('.atable thead th').forEach(function(th){
+    th.onclick=function(){
+      var k=th.getAttribute('data-k');
+      if(SORTK===k)SORTD*=-1;else{SORTK=k;SORTD=(k==='timestamp'?1:-1);}
+      paintHeads();renderRows();
+    };
+  });
+  document.getElementById('abody').onclick=function(e){
+    var tr=e.target.closest?e.target.closest('tr'):null;
+    if(!tr||tr.dataset.i===undefined)return;
+    var r=ROWS[+tr.dataset.i];if(!r)return;
+    document.querySelectorAll('#abody tr').forEach(function(x){x.classList.remove('sel')});
+    tr.classList.add('sel');
+    var at=-1;
+    for(var i=0;i<LAST.length;i++){if(LAST[i].timestamp===r.timestamp){at=i;break;}}
+    if(at>=0){drawTrend(LAST,at);
+      document.getElementById('chart').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});}
+  };
+  paintHeads();
+  fetch('/api/buildings/'+ID+'/insights').then(function(r){return r.json()}).then(function(n){
+    document.getElementById('insights').textContent=n.message;});
+  document.getElementById('retry').onclick=function(){location.reload()};
+  loadTrend('7d');loadAnoms(true);
+
+  var themeT=document.getElementById('themeT');
+  themeT.checked=document.documentElement.dataset.theme==='dark';
+  themeT.onchange=function(){
+    document.documentElement.dataset.theme=themeT.checked?'dark':'';
+    try{localStorage.setItem('cch-theme',themeT.checked?'dark':'light')}catch(e){}
+
+    loadTrend(CUR);  };
+
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.18});
+  document.querySelectorAll('.tile,.panel').forEach(function(t){io.observe(t)});
+})();
+</script></body></html>

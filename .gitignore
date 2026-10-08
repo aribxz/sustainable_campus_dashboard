@@ -1,0 +1,12 @@
+# Meter data: GB-scale CSVs, GitHub rejects files over 100 MB.
+# Regenerate locally (see README.md) instead of versioning.
+/Datasets/
+*.csv
+*.pkl
+# Python bytecode
+__pycache__/
+*.pyc
+# Editor / OS noise
+.obsidian/
+.vscode/
+*.log

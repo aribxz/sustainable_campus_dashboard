@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>try{if(localStorage.getItem('cch-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About · IITD Campus Energy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f6f8; --card:#fff; --ink:#15171d; --muted:#6a7080; --line:#e3e6ec;
+  --accent:#9b6bff; --normal:#1f9d63; --attention:#d99a00; --critical:#d6453d;
+  --serif:'Instrument Serif',Georgia,'Times New Roman',serif;
+  --sans:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--sans);overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:12px}
+.bar{position:fixed;inset:0 0 auto 0;z-index:10;display:flex;justify-content:space-between;align-items:center;
+  padding:18px clamp(20px,5vw,64px);backdrop-filter:blur(14px);background:rgba(245,246,248,.72);
+  border-bottom:1px solid transparent;transition:border-color .4s var(--ease)}
+.bar.stuck{border-color:var(--line)}
+.bar b{font-family:var(--serif);font-weight:400;font-size:1.35rem}
+.bar a.back{color:var(--muted);font-size:.9rem;display:flex;gap:8px;align-items:center}
+.bar a.back:hover{color:var(--ink)}
+.hero{position:relative;min-height:92svh;display:flex;flex-direction:column;justify-content:center;
+  padding:120px clamp(20px,5vw,64px) 60px;overflow:hidden}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(3.6rem,12vw,10rem);line-height:.92;letter-spacing:-.03em}
+.hero h1 .l{display:block;overflow:hidden;padding-bottom:.06em}
+.hero h1 .l i{display:block;font-style:normal;transform:translateY(105%);animation:rise 1.1s var(--ease) forwards}
+.hero h1 .l:nth-child(2) i{animation-delay:.14s;padding-left:clamp(0px,10vw,160px)}
+@keyframes rise{to{transform:none}}
+.cap{max-width:340px;font-size:.92rem;color:var(--muted);margin:26px 0 8px;opacity:0;animation:fade .9s .6s var(--ease) forwards}
+@keyframes fade{to{opacity:1}}
+.pill{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;margin-bottom:14px;padding:6px 14px 6px 12px;border-radius:99px;font-size:.85rem;font-weight:500;background:color-mix(in srgb,var(--accent) 12%,#fff);color:color-mix(in srgb,var(--accent) 70%,#000)}
+.pill .dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.livetot{display:flex;gap:28px;flex-wrap:wrap;margin-top:34px;opacity:0;animation:fade .9s .9s var(--ease) forwards}
+.livetot div{display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--muted)}
+.livetot strong{font:400 2rem/1 var(--serif);color:var(--ink)}
+main{padding:0 clamp(20px,5vw,64px) 40px}
+.pipe{display:flex;align-items:stretch;gap:0;margin:0 0 clamp(24px,4vw,48px);flex-wrap:wrap}
+.chip{flex:1 1 160px;background:var(--card);border:1px solid var(--line);padding:18px 20px;text-align:center}
+.chip:first-child{border-radius:20px 0 0 20px}
+.chip:last-child{border-radius:0 20px 20px 0}
+.chip b{display:block;font:400 1.5rem/1.2 var(--serif)}
+.chip small{color:var(--muted);font-size:.8rem}
+.chip.arrowchip{flex:0 0 auto;display:grid;place-items:center;background:none;border:0;color:var(--muted);font-size:1.4rem;padding:0 10px}
+.sect{margin:0 0 clamp(24px,4vw,48px)}
+.sect h2{font:400 clamp(2.2rem,4.5vw,3.4rem)/1.05 var(--serif);letter-spacing:-.02em;margin-bottom:8px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:clamp(24px,3vw,40px)}
+.panel p.body{font-size:.95rem;color:#3a3f4d;max-width:62ch;margin:0 0 12px}
+.stage{display:none}
+.stage.on{display:block;animation:fade .5s var(--ease)}
+.seg{display:inline-flex;gap:6px;background:#eef0f4;border-radius:99px;padding:4px;margin-bottom:20px;flex-wrap:wrap}
+.seg button{font:500 .85rem var(--sans);border:0;background:none;padding:8px 18px;border-radius:99px;cursor:pointer;color:var(--muted);transition:background .3s var(--ease),color .3s}
+.seg button.on{background:var(--ink);color:#fff}
+.seg button:hover:not(.on){color:var(--ink)}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(12px,2vw,24px);margin-top:20px}
+.tile{background:#f7f8fa;border:1px solid var(--line);border-radius:20px;padding:20px;min-height:130px;display:flex;flex-direction:column;justify-content:space-between}
+.tile small{color:var(--muted);font-size:.82rem}
+.tile b{font:400 clamp(1.8rem,3vw,2.6rem)/1.1 var(--serif);letter-spacing:-.01em}
+.tile b em{font:500 .85rem var(--sans);font-style:normal;color:var(--muted);margin-left:4px}
+.grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,2vw,24px)}
+.grid6 a{background:var(--ink);color:#fff;border-radius:20px;padding:20px 24px;transition:transform .5s var(--ease)}
+.grid6 a:hover{transform:translateY(-5px)}
+.grid6 small{opacity:.6;display:block;font-size:.8rem}
+.grid6 b{font:400 1.5rem/1.2 var(--serif)}
+.reveal{opacity:0;transform:translateY(46px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.err{display:none;margin-bottom:24px;padding:16px 20px;border:1px solid #f0c8c5;background:#fff4f3;border-radius:16px;font-size:.92rem}
+.err.show{display:block}
+footer{padding:40px clamp(20px,5vw,64px) 48px;color:var(--muted);font-size:.85rem}
+@media(max-width:760px){.tiles,.grid6{grid-template-columns:1fr 1fr}.chip{flex:1 1 100%}.chip:first-child,.chip:last-child{border-radius:20px}.chip.arrowchip{display:none}}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .reveal,.hero h1 .l i,.cap,.livetot{opacity:1;transform:none}
+}
+:root{color-scheme:light}
+[data-theme="dark"]{color-scheme:dark;--bg:#101216;--card:#171a20;--ink:#f2f4f8;--muted:#9aa1b2;--line:#2a2f3a;--accent:#b794ff}
+[data-theme="dark"] .bar{background:rgba(16,18,22,.72)}
+[data-theme="dark"] .face,[data-theme="dark"] .go{background:#1d2129}
+[data-theme="dark"] .seg{background:#20252f}
+[data-theme="dark"] .pill{background:color-mix(in srgb,var(--c) 22%,#171a20);color:color-mix(in srgb,var(--c) 75%,#fff)}
+[data-theme="dark"] .skel{background:linear-gradient(90deg,#22262f,#2b303c,#22262f);background-size:200%}
+[data-theme="dark"] .err{background:#2a1512;border-color:#5a2320}
+[data-theme="dark"] .more,[data-theme="dark"] .aboutbtn{background:#1d2129}
+[data-theme="dark"] .atable tbody tr:hover td{background:#22262f}
+[data-theme="dark"] .atable tr.sel td{background:#2c2340}
+[data-theme="dark"] .bld:hover{border-color:#3a4150}
+[data-theme="dark"] .tile{background:#1b1f27}
+[data-theme="dark"] .grid6 a{background:#e8ebf2;color:#15171d}
+.bright{display:flex;align-items:center;gap:10px}
+.sw{position:relative;display:inline-block;width:52px;height:28px;cursor:pointer;flex:none}
+.sw input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.sw span{position:absolute;inset:0;border-radius:99px;background:#dfe3ea;border:1px solid var(--line);transition:background .4s var(--ease)}
+.sw span::after{content:'\263e';position:absolute;top:2px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:13px;color:#15171d;transition:transform .4s var(--ease);box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.sw input:checked+span{background:var(--ink)}
+.sw input:checked+span::after{content:'\2600';transform:translateX(24px)}
+.sw input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+[data-theme="dark"] .sw span{background:#2a2f3a}
+</style>
+</head>
+<body>
+<header class="bar" id="bar"><b>Sustainable Campus Dashboard</b><span class="bright"><a class="back" href="/">&larr; Campus Map</a><label class="sw" title="Dark mode"><input type="checkbox" id="themeT"><span></span></label></span></header>
+
+<section class="hero">
+  <span class="pill"><span class="dot"></span>How This Was Built</span>
+  <h1><span class="l"><i>From Meters</i></span><span class="l"><i>To Meaning</i></span></h1>
+  <p class="cap">A LEAD-Trained Detector, Validated On Unseen Buildings, Then Applied To The IIT Delhi Campus. Three Stages, One Frozen Model.</p>
+  <div class="livetot" id="livetot" aria-live="polite">
+    <div><strong id="tBldg">–</strong>Campus Buildings</div>
+    <div><strong id="tFlag">–</strong>Total p98 Flags</div>
+    <div><strong id="tScore">–</strong>Live From Backend</div>
+  </div>
+</section>
+
+<main>
+  <div class="err" id="err">Could Not Load Live Totals. Showing Static Story Below.</div>
+
+  <div class="pipe reveal" aria-label="Pipeline">
+    <div class="chip"><b>LEAD Train</b><small>1.58M Normal Hours</small></div>
+    <div class="chip arrowchip">→</div>
+    <div class="chip"><b>Frozen Model</b><small>200-Tree Forest</small></div>
+    <div class="chip arrowchip">→</div>
+    <div class="chip"><b>IITD Campus</b><small>6 Buildings Scored</small></div>
+  </div>
+
+  <section class="sect">
+    <div class="seg reveal" id="seg">
+      <button data-s="s1" class="on">1 · Training</button><button data-s="s2">2 · Validation</button><button data-s="s3">3 · Campus</button>
+    </div>
+    <div class="panel reveal">
+      <div class="stage on" id="s1">
+        <h2>Trained On LEAD</h2>
+        <p class="body">An Isolation Forest Learned Normal Consumption From LEAD Hourly Meter Records Using Log Energy, Time Of Day, And Each Building's Own Past-Only 168-Hour Deviation. Training Used Normal Rows Only, So The Model Knows Ordinary Behavior, Not Labeled Faults.</p>
+        <p class="body">Performance Was Measured On 40 Held-Out Buildings Kept Strictly Disjoint From Training, Reaching 0.79 ROC-AUC. The Resulting Model Was Then Frozen And Never Retrained.</p>
+        <div class="tiles">
+          <div class="tile"><small>Decision Trees</small><b><span class="cnt" data-to="200" data-dp="0">0</span></b></div>
+          <div class="tile"><small>Normal Training Hours</small><b><span class="cnt" data-to="1.58" data-dp="2">0</span><em>M</em></b></div>
+          <div class="tile"><small>Train / Validation Split</small><b>160<em>/</em>40</b></div>
+          <div class="tile"><small>Validation ROC-AUC</small><b><span class="cnt" data-to="0.79" data-dp="2">0</span></b></div>
+        </div>
+      </div>
+      <div class="stage" id="s2">
+        <h2>test.csv As Validation</h2>
+        <p class="body">The Kaggle Test Set Carries No Anomaly Labels, So Classical Accuracy Could Not Apply. Instead It Served As An Unlabeled Generalization Check On 206 Completely Unseen Buildings.</p>
+        <p class="body">The Frozen Model, With Its Fixed Threshold, Flagged About One Percent Of Test Hours — Matching Its Calibration And Confirming The Detector Transfers Beyond The Buildings It Trained On.</p>
+        <div class="tiles">
+          <div class="tile"><small>Unseen Buildings</small><b><span class="cnt" data-to="206" data-dp="0">0</span></b></div>
+          <div class="tile"><small>Test Rows Checked</small><b><span class="cnt" data-to="1.80" data-dp="2">0</span><em>M</em></b></div>
+          <div class="tile"><small>Flag Rate Observed</small><b><span class="cnt" data-to="0.95" data-dp="2">0</span><em>%</em></b></div>
+          <div class="tile"><small>Labels Available</small><b>None</b></div>
+        </div>
+      </div>
+      <div class="stage" id="s3">
+        <h2>Evaluated On IITD</h2>
+        <p class="body">Delhi Campus Minute-Level Mains Were Resampled To Hourly Energy, Low-Coverage Hours Masked, And Long Gaps Left Unfilled. Each Building Was Scored Against Its Own History Only.</p>
+        <p class="body">Because Campuses Differ, Thresholds Were Recalibrated Per Building Instead Of Reusing The LEAD Cutoff. With No Ground-Truth Labels, Flags Are Anomaly-Health Indicators, Never Confirmed Faults.</p>
+        <div class="tiles">
+          <div class="tile"><small>Campus Buildings</small><b><span class="cnt" data-to="6" data-dp="0">0</span></b></div>
+          <div class="tile"><small>Minute To Hour Step</small><b>60<em>→</em>1</b></div>
+          <div class="tile"><small>Coverage Masking</small><b>&lt;50<em>%</em></b></div>
+          <div class="tile"><small>Thresholds Used</small><b>p98<em>+</em>p99</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h2>Explore Buildings</h2>
+    <div class="grid6 reveal">
+      <a href="/building/a-block"><span><small>Block A</small><b>A Block</b></span></a>
+      <a href="/building/library"><span><small>Reading Halls</small><b>Library</b></span></a>
+      <a href="/building/c-block"><span><small>Block C</small><b>C Block</b></span></a>
+      <a href="/building/b-block"><span><small>Block B</small><b>B Block</b></span></a>
+      <a href="/building/hostels"><span><small>Residence</small><b>Hostels</b></span></a>
+      <a href="/building/mess"><span><small>Dining</small><b>Mess</b></span></a>
+    </div>
+  </section>
+</main>
+
+<footer>Built by A.U.S.T.: Historical IITD Energy Records And The LEAD Benchmark. Scores And Statuses Come From The Analysis Backend.</footer>
+
+<script>
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function counter(el){
+    var to=parseFloat(el.dataset.to),dp=parseInt(el.dataset.dp||'0',10);
+    if(reduce){el.textContent=to.toFixed(dp);return;}
+    var t0=performance.now(),dur=1400;
+    (function tick(t){
+      var p=Math.min((t-t0)/dur,1),e=1-Math.pow(1-p,4);
+      el.textContent=(to*e).toFixed(dp);
+      if(p<1)requestAnimationFrame(tick);else el.textContent=to.toFixed(dp);
+    })(t0);
+  }
+  function runCounters(root){
+    root.querySelectorAll('.cnt').forEach(counter);
+  }
+  var btns=document.querySelectorAll('#seg button');
+  btns.forEach(function(b){b.onclick=function(){
+    btns.forEach(function(x){x.classList.toggle('on',x===b)});
+    document.querySelectorAll('.stage').forEach(function(s){
+      var on=s.id===b.dataset.s;
+      s.classList.toggle('on',on);
+      if(on)runCounters(s);
+    });
+  }});
+  runCounters(document.getElementById('s1'));
+  var themeT=document.getElementById('themeT');
+  themeT.checked=document.documentElement.dataset.theme==='dark';
+  themeT.onchange=function(){
+    document.documentElement.dataset.theme=themeT.checked?'dark':'';
+    try{localStorage.setItem('cch-theme',themeT.checked?'dark':'light')}catch(e){}
+  };
+  fetch('/api/buildings').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(list){
+    var flags=0;
+    var ids=list.map(function(b){return b.id});
+    return Promise.all(ids.map(function(id){
+      return fetch('/api/buildings/'+id).then(function(r){return r.json()});
+    })).then(function(ovs){
+      ovs.forEach(function(o){flags+=o.anomalies.p98_count});
+      document.getElementById('tBldg').textContent=list.length;
+      document.getElementById('tFlag').textContent=flags.toLocaleString('en-IN');
+      document.getElementById('tScore').textContent='Live';
+    });
+  }).catch(function(){document.getElementById('err').classList.add('show')});
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
+  },{threshold:.18});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+  var bar=document.querySelector('.bar');
+  addEventListener('scroll',function(){bar.classList.toggle('stuck',scrollY>20)},{passive:true});
+})();
+</script>
+</body>
+</html>
