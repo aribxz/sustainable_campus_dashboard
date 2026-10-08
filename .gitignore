@@ -1,12 +1,19 @@
-# Meter data: GB-scale CSVs, GitHub rejects files over 100 MB.
-# Regenerate locally (see README.md) instead of versioning.
-/Datasets/
-*.csv
+# Meter data: GB-scale CSVs excluded (GitHub rejects files over 100 MB).
+# Only the 6 small scored CSVs the site serves are versioned.
+/Datasets/*
+!/Datasets/IITD/
+/Datasets/IITD/*
+!/Datasets/IITD/scored/
+/Datasets/IITD/scored/*
+!/Datasets/IITD/scored/transformer1_scored.csv
+!/Datasets/IITD/scored/transformer2_scored.csv
+!/Datasets/IITD/scored/transformer3_scored.csv
+!/Datasets/IITD/scored/library_final_scored.csv
+!/Datasets/IITD/scored/hostel_scored.csv
+!/Datasets/IITD/scored/mess_scored.csv
 *.pkl
-# Python bytecode
 __pycache__/
 *.pyc
-# Editor / OS noise
 .obsidian/
 .vscode/
 *.log
