@@ -72,12 +72,51 @@ Example: `/api/buildings/a-block/anomalies?limit=20&severity=p99`
 
 ## `GET /api/buildings/<building_id>/insights`
 
-Section 4 placeholder (recommendation engine plugs in here later).
+Section 4 — rule-based recommendation engine (deterministic, historical only).
+Params: `severity` (`p98` default | `p99`), `limit` (default 10, max 50),
+`start`, `end` (ISO timestamps, optional).
+
+Response preserves the original envelope (`building`, `available`, `message`)
+and adds structured fields:
 
 ```json
-{ "building": "A Block", "available": false,
-  "message": "Recommendation engine will be connected here." }
+{ "building": "A Block", "building_id": "a-block", "available": true,
+  "message": "6 historical insight(s) for A Block (p98). Patterns only — not confirmed faults.",
+  "severity": "p98", "rules_version": "2.0", "total": 6, "limit": 10,
+  "recommendations": [{
+    "id": "a-block-unusual_drop-2013-12-07T020000p0000",
+    "building_id": "a-block", "building_name": "A Block",
+    "category": "unusual_drop", "severity": "high",
+    "title": "Unusually low historical reading — A Block",
+    "summary": "One flagged hour ... Historical pattern only — not a confirmed fault.",
+    "evidence": { "timestamp": "...", "energy_kwh": 1.01,
+      "robust_z_168": -9.35, "anomaly_score": 0.674 },
+    "possible_causes": ["..."], "recommended_actions": ["..."],
+    "timestamp": "...", "start": "...", "end": "...",
+    "confidence": "strong", "status": "needs_review",
+    "rule": "A: flagged && robust_z_168 <= -3.0" }] }
 ```
+
+`category` is one of `unusual_drop | unusual_spike | repeated_anomalies |
+overnight_pattern | data_quality | general_review`. `severity` is
+`low | medium | high` per the rules documented in
+`services/recommendation_service.py` (v2.0). `confidence` (`limited |
+moderate | strong`) mirrors evidence strength. Old consumers using only
+`message` keep working. All pre-2.0 response keys are retained
+(`masked_ratio` included); 2.0 only adds evidence keys.
+
+v2.0 evidence notes:
+- `overnight_pattern` uses campus-local **IST 00:00–06:00 (UTC+05:30)**
+  (`evidence.overnight_window`) and fires only when the night anomaly rate
+  exceeds the day rate. Evidence carries `night_rate`, `day_rate`,
+  `enrichment_vs_day`, `share_of_nights`, plus a trailing-90d recent view
+  (`recent_nights_affected/total/share`, `most_recent_night`); severity keys
+  off `recent_share` (≥0.25 high, ≥0.10 medium).
+- `repeated_anomalies` adds `density_per_24h` and `direction`
+  (`low-use | high-use | mixed`, from mean `robust_z_168` at ±1.5); severity
+  is density-based (count≥5 and ≥8/day high, ≥4/day medium).
+- `data_quality` headlines `unscorable_share` (`unscorable_hours` /
+  `total_hours`) with `masked_hours` as a labeled subset.
 
 ## Pages (throwaway proof UI)
 

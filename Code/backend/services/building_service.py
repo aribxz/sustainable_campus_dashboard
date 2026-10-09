@@ -1,15 +1,3 @@
-"""Building data service: loads scored CSVs, builds overview objects.
-
-All pandas work lives here; routes only call these functions.
-
-Health-status rule (transparent, NOT a fault diagnosis):
-  recent_rate = p98 flags among the last 168 scorable hours (~7 days)
-  recent_rate == 0      -> "normal"
-  0 < recent_rate < 0.05 -> "attention"
-  recent_rate >= 0.05    -> "critical"
-It measures recent anomaly activity only. Never call it a confirmed fault.
-"""
-
 from functools import lru_cache
 
 import numpy as np
@@ -21,7 +9,6 @@ ATTENTION_CUTOFF = 0.05
 
 
 def _clean(value):
-    """Make a scalar JSON-safe (NaN/Infinity -> None)."""
     if value is None:
         return None
     if isinstance(value, float) and (np.isnan(value) or np.isinf(value)):
@@ -40,7 +27,6 @@ def _iso(ts) -> str | None:
 
 @lru_cache(maxsize=None)
 def load_building(building_id: str) -> pd.DataFrame:
-    """Load + normalize one scored CSV (cached). Never rescores anything."""
     if building_id not in BUILDINGS:
         raise KeyError(f"Unknown building: {building_id}")
     df = pd.read_csv(BUILDINGS[building_id]["dataset"])
@@ -67,7 +53,6 @@ def _status(df: pd.DataFrame) -> tuple[str, float]:
 
 
 def get_overview(building_id: str) -> dict:
-    """Section 1 overview object for one building."""
     df = load_building(building_id)
     name = BUILDINGS[building_id]["name"]
     scorable = df[df["anomaly_score"].notna()]
@@ -120,7 +105,6 @@ def get_overview(building_id: str) -> dict:
 
 
 def get_campus_overview() -> list:
-    """One card per building for the index/campus-map page."""
     cards = []
     for building_id in BUILDINGS:
         ov = get_overview(building_id)

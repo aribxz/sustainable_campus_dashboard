@@ -1,29 +1,3 @@
-"""Standardized IITD campus preprocessing (PREPROCESSING ONLY).
-
-Raw minute-level IITD mains -> standardized hourly CSVs. No models,
-no scores, no flags, no thresholds anywhere in this file.
-
-Pipeline per building (same for every file):
-  minute CSV -> hourly aggregation -> full hourly grid (gaps stay visible)
-  -> coverage/masking (<50% masked, no imputation) -> energy_kwh
-  -> portable time features -> own-history rolling features
-  -> standardized hourly CSV.
-
-Rolling columns mirror Datasets/IITD/preprocessed/library_hourly.csv exactly, plus one
-model-compatible past-only column:
-  robust_z_168 = (log_energy - median_168) / IQR_168, computed on
-  log_energy.shift(1), window 168h, min_periods 72. The current hour is
-  never in its own baseline.
-
-Outputs (building column carries the campus name):
-  Datasets/IITD/preprocessed/transformer1_hourly.csv -> A Block
-  Datasets/IITD/preprocessed/transformer2_hourly.csv -> B Block
-  Datasets/IITD/preprocessed/transformer3_hourly.csv -> C Block
-  Datasets/IITD/preprocessed/mess_hourly.csv         -> Mess
-  Datasets/IITD/preprocessed/hostel_hourly.csv       -> Hostels
-Library already exists: Datasets/IITD/preprocessed/library_hourly.csv -> Library.
-"""
-
 from pathlib import Path
 
 import numpy as np
@@ -114,7 +88,6 @@ COLUMNS = [
 
 
 def aggregate_to_hourly(df_min: pd.DataFrame, building: str) -> pd.DataFrame:
-    """Floor minute rows to hours; mean/min/max/std/count per channel."""
     df = df_min.copy()
     df["ts"] = pd.to_datetime(df["timestamp"], unit="s", utc=True)
     df = df.set_index("ts").sort_index()
@@ -160,7 +133,6 @@ def aggregate_to_hourly(df_min: pd.DataFrame, building: str) -> pd.DataFrame:
 
 
 def add_energy(hourly: pd.DataFrame) -> pd.DataFrame:
-    """energy_kwh = hourly_mean_power_W / 1000; NaN where masked."""
     df = hourly.copy()
     df["energy_kwh"] = df["power_mean_W"] / 1000.0
     df["energy_kwh_observed"] = df["power_mean_W"] * df["n_valid"] / 60.0 / 1000.0
@@ -169,7 +141,6 @@ def add_energy(hourly: pd.DataFrame) -> pd.DataFrame:
 
 
 def reindex_full_grid(hourly: pd.DataFrame, building: str) -> pd.DataFrame:
-    """Insert NaN rows for empty hours so gaps stay visible; never impute."""
     df = hourly.copy()
     df["hour_start"] = pd.to_datetime(df["hour_start"], utc=True)
     full = pd.date_range(
@@ -192,7 +163,6 @@ def reindex_full_grid(hourly: pd.DataFrame, building: str) -> pd.DataFrame:
 
 
 def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Portable time features (same definitions as Library)."""
     df = df.copy()
     ts = pd.to_datetime(df["hour_start"], utc=True)
     df["hour"] = ts.dt.hour
@@ -207,11 +177,6 @@ def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_history_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Own-history rolling features.
-
-    Library-identical unshifted set (roll_med_24h ... log_energy) plus the
-    model-compatible past-only robust_z_168 (shift(1), 168h, min_periods 72).
-    """
     df = df.copy().sort_values("hour_start").reset_index(drop=True)
     e = np.log1p(df["energy_kwh"].clip(lower=0))
     df["log_energy"] = e
@@ -240,7 +205,6 @@ def add_history_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def preprocess_building(input_path: Path, building: str, output_path: Path) -> Path:
-    """Run the full standardized pipeline for one raw building file."""
     df_min = pd.read_csv(input_path)
     hourly = aggregate_to_hourly(df_min, building)
     hourly = reindex_full_grid(hourly, building)
@@ -264,7 +228,6 @@ def preprocess_building(input_path: Path, building: str, output_path: Path) -> P
 
 
 def main() -> None:
-    """Preprocess every mapped building (Library already exists, untouched)."""
     for building, src in BUILDINGS.items():
         if not src.is_file():
             print(f"{building}: MISSING {src} -- skipped")

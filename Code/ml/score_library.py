@@ -1,24 +1,3 @@
-"""Score IITD Library with the frozen finalized LEAD model (no retraining/tuning).
-
-Frozen model: FEATURES = [log_meter, hour_x, hour_y, robust_z_168],
-  IsolationForest(200, max_samples=256, max_features=1.0,
-                  contamination=0.02, random_state=42).
-  Trained on LEAD train.csv normal (anomaly==0) rows only.
-
-Frozen feature definitions (Library's own series, past-only):
-  log_meter    = log1p(energy_kwh)
-  hour_x/y     = cos/sin(2*pi*hour/24) from hour_start
-  robust_z_168 = (log_meter - median_168) / IQR_168, rolling 168h,
-                 min_periods=72, shift(1) so the current hour is NOT in
-                 its own baseline.
-
-Input (already hourly, never resampled): Datasets/IITD/preprocessed/library_hourly.csv
-  consumption column = energy_kwh (== power_mean_W/1000, NaN when masked).
-The old library_hourly_scored.csv scores/flags are inspected for
-diagnostics only and never reused.
-Output: Datasets/IITD/scored/library_final_scored.csv
-"""
-
 from pathlib import Path
 
 import numpy as np
@@ -47,7 +26,6 @@ ROLL_MIN_PERIODS = 72
 
 
 def build_lead_features(frame: pd.DataFrame) -> pd.DataFrame:
-    """Frozen LEAD feature build on raw (building_id, timestamp, meter)."""
     df = frame.copy()
     df["timestamp"] = pd.to_datetime(df["timestamp"])
     df["log_meter"] = np.log1p(df["meter_reading"].clip(lower=0))
@@ -69,7 +47,6 @@ def build_lead_features(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def train_frozen_model() -> IsolationForest:
-    """Instantiate the finalized model: same params, same LEAD normals."""
     df = pd.read_csv(
         LEAD_TRAIN, usecols=["building_id", "timestamp", "meter_reading", "anomaly"]
     )
@@ -89,7 +66,6 @@ def train_frozen_model() -> IsolationForest:
 
 
 def build_library_features() -> pd.DataFrame:
-    """Hourly Library frame + freshly recomputed frozen features."""
     df = pd.read_csv(LIB_HOURLY)
     df["hour_start"] = pd.to_datetime(df["hour_start"], utc=True)
     df = df.sort_values("hour_start").reset_index(drop=True)

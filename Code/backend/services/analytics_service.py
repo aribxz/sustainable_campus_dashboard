@@ -1,9 +1,3 @@
-"""Analytics service: historical trends, anomaly explorer, insights stub.
-
-Historical-data demo only: everything here reads precomputed CSV rows.
-Nothing is live; no rescoring, no new thresholds.
-"""
-
 import numpy as np
 import pandas as pd
 
@@ -13,7 +7,6 @@ TREND_RANGES = {"24h": 24, "7d": 24 * 7, "30d": 24 * 30, "all": None}
 
 
 def get_trend(building_id: str, span: str = "7d") -> dict:
-    """Historical Energy Trend slice (masked gaps stay null, never filled)."""
     if span not in TREND_RANGES:
         raise ValueError(f"range must be one of {sorted(TREND_RANGES)}")
     df = load_building(building_id)
@@ -46,7 +39,6 @@ def get_anomalies(
     start: str | None = None,
     end: str | None = None,
 ) -> dict:
-    """Anomaly explorer: worst-first table with limit/offset/severity/window."""
     if severity not in ("p98", "p99"):
         raise ValueError("severity must be 'p98' or 'p99'")
     limit = max(1, min(int(limit), 500))
@@ -88,7 +80,6 @@ def get_anomalies(
 
 
 def get_insights(building_id: str) -> dict:
-    """Section 4 placeholder — the future recommendation engine plugs in here."""
     from data.building_registry import BUILDINGS
 
     return {

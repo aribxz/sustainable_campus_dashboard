@@ -1,15 +1,8 @@
-"""Flask backend for the Version A historical-data hackathon demo.
-
-Layering: routes -> services/*.py -> scored CSVs. Routes contain no pandas.
-The future frontend only needs the JSON APIs below; Code/frontend holds
-the replaceable UI files.
-"""
-
 from pathlib import Path
 
 from data.building_registry import BUILDINGS
 from flask import Flask, jsonify, redirect, request, send_from_directory
-from services import analytics_service, building_service
+from services import analytics_service, building_service, recommendation_service
 
 app = Flask(__name__)
 
@@ -47,14 +40,12 @@ def building_page(building_id: str):
 
 @app.route("/<page>.html")
 def legacy_page(page: str):
-    """Compatibility for in-page prev/next links (mess.html, c-block.html…)."""
     _require_building(page)
     return redirect(f"/building/{page}")
 
 
 @app.route("/about")
 def about():
-    """Full interactive About page (replaces the old header modal)."""
     return send_from_directory(FRONTEND_DIR, "about.html")
 
 
@@ -104,7 +95,20 @@ def api_anomalies(building_id: str):
 @app.route("/api/buildings/<building_id>/insights")
 def api_insights(building_id: str):
     _require_building(building_id)
-    return jsonify(analytics_service.get_insights(building_id))
+    try:
+        return jsonify(
+            recommendation_service.get_insights(
+                building_id,
+                severity=request.args.get("severity", "p98"),
+                limit=request.args.get("limit", 10),
+                start=request.args.get("start"),
+                end=request.args.get("end"),
+            )
+        )
+    except ValueError as exc:
+        from werkzeug.exceptions import BadRequest
+
+        raise BadRequest(str(exc)) from exc
 
 
 if __name__ == "__main__":

@@ -1,30 +1,3 @@
-"""Campus scoring stage (SCORING ONLY - frozen LEAD model, no retraining).
-
-Frozen model (validated LEAD results: ROC 0.7866 / PR 0.4519):
-  FEATURES = [log_meter, hour_x, hour_y, robust_z_168]
-  IsolationForest(200, max_samples=256, max_features=1.0,
-                  contamination=0.02, random_state=42),
-  trained on LEAD train.csv normal (anomaly==0) rows only.
-
-NOTE on model artifact: Datasets/IITD/lead_portable_if.pkl is an OLD model
-(earlier pipeline version, different features/params) and is NOT loaded.
-The frozen model is instantiated with the exact finalized training
-code/data/params below. No parameter is changed.
-
-IITD mapping: preprocessed log_energy is passed as log_meter with values
-unaltered (verified log_energy == log1p(energy_kwh) exactly). robust_z_168
-in the preprocessed files is the past-only shift(1)/168/min72 build.
-
-Per building (thresholds never pooled, LEAD 0.6418 never reused):
-  anomaly_score = -model.score_samples(X) on scorable rows only
-  (energy present + all 4 features present; masked/gap rows stay NaN,
-  flags 0, never treated as normal).
-  p98/p99 thresholds from that building's own score distribution.
-
-Outputs: Datasets/IITD/scored/{transformer1,transformer2,transformer3,
-mess,hostel}_scored.csv + Datasets/IITD/campus_anomalies.csv
-"""
-
 from pathlib import Path
 
 import numpy as np
@@ -66,7 +39,6 @@ OUTPUTS = {
 
 
 def build_lead_features(frame: pd.DataFrame) -> pd.DataFrame:
-    """Exact finalized LEAD feature build (train side only)."""
     df = frame.copy()
     df["timestamp"] = pd.to_datetime(df["timestamp"])
     df["log_meter"] = np.log1p(df["meter_reading"].clip(lower=0))
@@ -85,7 +57,6 @@ def build_lead_features(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def train_frozen_model() -> IsolationForest:
-    """Instantiate finalized model: same data, params, normal-only fit."""
     df = pd.read_csv(
         LEAD_TRAIN, usecols=["building_id", "timestamp", "meter_reading", "anomaly"]
     )
@@ -107,7 +78,6 @@ def train_frozen_model() -> IsolationForest:
 def score_building(
     building: str, src: Path, model: IsolationForest
 ) -> tuple[pd.DataFrame, dict]:
-    """Score one building; thresholds from its own scorable distribution."""
     df = pd.read_csv(src)
     assert df["building"].nunique() == 1 and df["building"].iloc[0] == building
     x = df.rename(columns={"log_energy": "log_meter"})[FEATURES]

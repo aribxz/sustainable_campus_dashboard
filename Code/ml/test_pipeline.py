@@ -1,18 +1,3 @@
-"""Finalized LEAD model -> Kaggle test_features sanity check (unlabeled).
-
-Model (frozen): FEATURES = [log_meter, hour_x, hour_y, robust_z_168],
-  IF(200, max_samples=256, max_features=1.0, contamination=0.02, rs=42),
-  threshold 0.6418 (p99 from building-disjoint validation).
-  Trained on normal (anomaly==0) train rows only.
-
-Key point: test_features.csv has NO robust_z_168 column, and any
-Kaggle-side rolling would not match our past-only shift(1)/168/min72
-definition anyway. So portable features are recomputed from raw train.csv /
-test.csv with one shared function -- train and test stay consistent.
-Test set has no labels: only flag counts/rates/distributions are reported,
-never precision/recall/AUC.
-"""
-
 from pathlib import Path
 
 import numpy as np
@@ -40,7 +25,6 @@ ROLL_MIN_PERIODS = 72
 
 
 def add_portable_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Build shared portable features: log scale, time, past-only robust z."""
     df = df.copy()
     df["timestamp"] = pd.to_datetime(df["timestamp"])
     df["log_meter"] = np.log1p(df["meter_reading"].clip(lower=0))
@@ -62,7 +46,6 @@ def add_portable_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_train() -> pd.DataFrame:
-    """Load raw train CSV and return modeled rows (positive energy + history)."""
     df = pd.read_csv(TRAIN_CSV)
     df = add_portable_features(df)
     df = df.dropna(subset=["meter_reading"])
@@ -71,12 +54,10 @@ def load_train() -> pd.DataFrame:
 
 
 def load_test() -> pd.DataFrame:
-    """Load raw Kaggle test CSV with shared portable features attached."""
     return add_portable_features(pd.read_csv(TEST_CSV))
 
 
 def train_final_model(train: pd.DataFrame) -> IsolationForest:
-    """Fit the frozen Isolation Forest on normal train rows only."""
     normal = train[train["anomaly"] == 0]
     model = IsolationForest(**MODEL_PARAMS)
     model.fit(normal[FEATURES])
@@ -84,7 +65,6 @@ def train_final_model(train: pd.DataFrame) -> IsolationForest:
 
 
 def report_test(test: pd.DataFrame, scores: np.ndarray) -> None:
-    """Print the unlabeled generalization report (no labels => no P/R/AUC)."""
     scorable = pd.Series(scores).notna().to_numpy()
     valid_scores = scores[scorable]
     scored = test.loc[scorable].copy()
@@ -148,7 +128,6 @@ def report_test(test: pd.DataFrame, scores: np.ndarray) -> None:
 
 
 def main() -> None:
-    """Train the frozen model and score the Kaggle test set."""
     print(
         "train_features robust_z_168 present: False "
         "(Kaggle table has 57 cols, none ours) -> recompute from raw CSVs.",

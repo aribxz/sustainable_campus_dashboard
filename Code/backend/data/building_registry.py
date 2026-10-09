@@ -1,10 +1,3 @@
-"""Central building registry: single source of truth for IDs, names, datasets.
-
-Frontend code must never hardcode filenames; it uses building IDs and asks
-the API for everything else. The Ground is cosmetic-only and intentionally
-absent from this registry (no dataset, no analytics).
-"""
-
 from pathlib import Path
 
 CODE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -43,7 +36,6 @@ MAP_ORDER = ["a-block", "library", "c-block", "b-block", "ground", "hostels", "m
 
 
 def get_building(building_id: str) -> dict:
-    """Return registry entry or raise KeyError for unknown IDs."""
     if building_id not in BUILDINGS:
         raise KeyError(f"Unknown building: {building_id}")
     return BUILDINGS[building_id]

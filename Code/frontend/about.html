@@ -10,8 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f5f6f8; --card:#fff; --ink:#15171d; --muted:#6a7080; --line:#e3e6ec;
+  --bg:#f5f6f8; --card:#fff; --ink:#15171d; --inv:#fff; --muted:#6a7080; --line:#e3e6ec;
   --accent:#9b6bff; --normal:#1f9d63; --attention:#d99a00; --critical:#d6453d;
+  --bar:rgba(245,246,248,.72); --spot:14%;
   --serif:'Instrument Serif',Georgia,'Times New Roman',serif;
   --sans:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
   --ease:cubic-bezier(.2,.7,.2,1);
@@ -21,10 +22,14 @@ html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--sans);overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 :focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:12px}
+body::before,body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none}
+body::before{background:radial-gradient(60vw 50vh at 10% -10%,color-mix(in srgb,var(--accent) 9%,transparent),transparent 70%),radial-gradient(50vw 45vh at 100% 105%,color-mix(in srgb,#2ec4b6 6%,transparent),transparent 70%)}
+body::after{background-image:radial-gradient(color-mix(in srgb,var(--ink) 16%,transparent) 1px,transparent 1.3px);background-size:26px 26px;opacity:.45;-webkit-mask-image:radial-gradient(ellipse at 50% 25%,#000 5%,transparent 72%);mask-image:radial-gradient(ellipse at 50% 25%,#000 5%,transparent 72%)}
 .bar{position:fixed;inset:0 0 auto 0;z-index:10;display:flex;justify-content:space-between;align-items:center;
-  padding:18px clamp(20px,5vw,64px);backdrop-filter:blur(14px);background:rgba(245,246,248,.72);
+  padding:18px clamp(20px,5vw,64px);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:var(--bar);
   border-bottom:1px solid transparent;transition:border-color .4s var(--ease)}
 .bar.stuck{border-color:var(--line)}
+.prog{position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:linear-gradient(90deg,var(--accent),#2ec4b6);transform-origin:0 50%;transform:scaleX(var(--p,0))}
 .bar b{font-family:var(--serif);font-weight:400;font-size:1.35rem}
 .bar a.back{color:var(--muted);font-size:.9rem;display:flex;gap:8px;align-items:center}
 .bar a.back:hover{color:var(--ink)}
@@ -58,16 +63,19 @@ main{padding:0 clamp(20px,5vw,64px) 40px}
 .stage.on{display:block;animation:fade .5s var(--ease)}
 .seg{display:inline-flex;gap:6px;background:#eef0f4;border-radius:99px;padding:4px;margin-bottom:20px;flex-wrap:wrap}
 .seg button{font:500 .85rem var(--sans);border:0;background:none;padding:8px 18px;border-radius:99px;cursor:pointer;color:var(--muted);transition:background .3s var(--ease),color .3s}
-.seg button.on{background:var(--ink);color:#fff}
+.seg button.on{background:var(--ink);color:var(--inv)}
 .seg button:hover:not(.on){color:var(--ink)}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(12px,2vw,24px);margin-top:20px}
-.tile{background:#f7f8fa;border:1px solid var(--line);border-radius:20px;padding:20px;min-height:130px;display:flex;flex-direction:column;justify-content:space-between}
+.tile{position:relative;isolation:isolate;background:#f7f8fa;border:1px solid var(--line);border-radius:20px;padding:20px;min-height:130px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .5s var(--ease),box-shadow .5s var(--ease)}
+.tile:hover{transform:translateY(-4px);box-shadow:0 22px 44px -24px rgba(30,30,60,.32)}
 .tile small{color:var(--muted);font-size:.82rem}
 .tile b{font:400 clamp(1.8rem,3vw,2.6rem)/1.1 var(--serif);letter-spacing:-.01em}
 .tile b em{font:500 .85rem var(--sans);font-style:normal;color:var(--muted);margin-left:4px}
 .grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,2vw,24px)}
-.grid6 a{background:var(--ink);color:#fff;border-radius:20px;padding:20px 24px;transition:transform .5s var(--ease)}
-.grid6 a:hover{transform:translateY(-5px)}
+.grid6 a{position:relative;overflow:hidden;isolation:isolate;background:var(--ink);color:var(--inv);border-radius:20px;padding:20px 24px;transition:transform .5s var(--ease),box-shadow .5s var(--ease)}
+.grid6 a:hover{transform:translateY(-5px);box-shadow:0 24px 48px -24px rgba(30,30,60,.4)}
+.tile::before,.grid6 a::before{content:'';position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;opacity:0;transition:opacity .4s;background:radial-gradient(360px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--st,var(--accent)) var(--spot),transparent),transparent 65%)}
+.tile:hover::before,.grid6 a:hover::before{opacity:1}
 .grid6 small{opacity:.6;display:block;font-size:.8rem}
 .grid6 b{font:400 1.5rem/1.2 var(--serif)}
 .reveal{opacity:0;transform:translateY(46px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
@@ -93,6 +101,7 @@ footer{padding:40px clamp(20px,5vw,64px) 48px;color:var(--muted);font-size:.85re
 [data-theme="dark"] .atable tr.sel td{background:#2c2340}
 [data-theme="dark"] .bld:hover{border-color:#3a4150}
 [data-theme="dark"] .tile{background:#1b1f27}
+[data-theme="dark"] .panel p.body{color:var(--muted)}
 [data-theme="dark"] .grid6 a{background:#e8ebf2;color:#15171d}
 .bright{display:flex;align-items:center;gap:10px}
 .sw{position:relative;display:inline-block;width:52px;height:28px;cursor:pointer;flex:none}
@@ -103,10 +112,15 @@ footer{padding:40px clamp(20px,5vw,64px) 48px;color:var(--muted);font-size:.85re
 .sw input:checked+span::after{content:'\2600';transform:translateX(24px)}
 .sw input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
 [data-theme="dark"] .sw span{background:#2a2f3a}
+[data-theme="dark"]{--inv:#101216;--bar:rgba(16,18,22,.72);--spot:24%}
+[data-theme="dark"] body::after{opacity:.5}
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+::view-transition-old(root){z-index:1}
+::view-transition-new(root){z-index:2}
 </style>
 </head>
 <body>
-<header class="bar" id="bar"><b>Sustainable Campus Dashboard</b><span class="bright"><a class="back" href="/">&larr; Campus Map</a><label class="sw" title="Dark mode"><input type="checkbox" id="themeT"><span></span></label></span></header>
+<header class="bar" id="bar"><b>Sustainable Campus Dashboard</b><span class="bright"><a class="back" href="/">&larr; Campus Map</a><label class="sw" title="Dark mode"><input type="checkbox" id="themeT"><span></span></label></span><i class="prog" id="prog" aria-hidden="true"></i></header>
 
 <section class="hero">
   <span class="pill"><span class="dot"></span>How This Was Built</span>
@@ -115,12 +129,12 @@ footer{padding:40px clamp(20px,5vw,64px) 48px;color:var(--muted);font-size:.85re
   <div class="livetot" id="livetot" aria-live="polite">
     <div><strong id="tBldg">–</strong>Campus Buildings</div>
     <div><strong id="tFlag">–</strong>Total p98 Flags</div>
-    <div><strong id="tScore">–</strong>Live From Backend</div>
+    <div><strong id="tScore">–</strong>Backend Status</div>
   </div>
 </section>
 
 <main>
-  <div class="err" id="err">Could Not Load Live Totals. Showing Static Story Below.</div>
+  <div class="err" id="err">Could Not Load Backend Totals. Showing Static Story Below.</div>
 
   <div class="pipe reveal" aria-label="Pipeline">
     <div class="chip"><b>LEAD Train</b><small>1.58M Normal Hours</small></div>
@@ -184,7 +198,7 @@ footer{padding:40px clamp(20px,5vw,64px) 48px;color:var(--muted);font-size:.85re
   </section>
 </main>
 
-<footer>Built by A.U.S.T.: Historical IITD Energy Records And The LEAD Benchmark. Scores And Statuses Come From The Analysis Backend.</footer>
+<footer>Built by A.U.S.T.</footer>
 
 <script>
 (function(){
@@ -215,8 +229,20 @@ footer{padding:40px clamp(20px,5vw,64px) 48px;color:var(--muted);font-size:.85re
   var themeT=document.getElementById('themeT');
   themeT.checked=document.documentElement.dataset.theme==='dark';
   themeT.onchange=function(){
-    document.documentElement.dataset.theme=themeT.checked?'dark':'';
-    try{localStorage.setItem('cch-theme',themeT.checked?'dark':'light')}catch(e){}
+    var dark=themeT.checked;
+    function apply(){
+      document.documentElement.dataset.theme=dark?'dark':'';
+      try{localStorage.setItem('cch-theme',dark?'dark':'light')}catch(e){}
+    }
+    if(reduce||!document.startViewTransition){apply();return;}
+    var r=themeT.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+    var R=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y));
+    document.startViewTransition(apply).ready.then(function(){
+      document.documentElement.animate(
+        {clipPath:['circle(0px at '+x+'px '+y+'px)','circle('+R+'px at '+x+'px '+y+'px)']},
+        {duration:750,easing:'cubic-bezier(.2,.7,.2,1)',pseudoElement:'::view-transition-new(root)'}
+      );
+    });
   };
   fetch('/api/buildings').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(list){
     var flags=0;
@@ -227,15 +253,29 @@ footer{padding:40px clamp(20px,5vw,64px) 48px;color:var(--muted);font-size:.85re
       ovs.forEach(function(o){flags+=o.anomalies.p98_count});
       document.getElementById('tBldg').textContent=list.length;
       document.getElementById('tFlag').textContent=flags.toLocaleString('en-IN');
-      document.getElementById('tScore').textContent='Live';
+      document.getElementById('tScore').textContent='Online';
     });
   }).catch(function(){document.getElementById('err').classList.add('show')});
   var io=new IntersectionObserver(function(es){
     es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
   },{threshold:.18});
   document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
-  var bar=document.querySelector('.bar');
-  addEventListener('scroll',function(){bar.classList.toggle('stuck',scrollY>20)},{passive:true});
+  var bar=document.querySelector('.bar'),prog=document.getElementById('prog');
+  function onScroll(){
+    bar.classList.toggle('stuck',scrollY>20);
+    var max=document.documentElement.scrollHeight-innerHeight;
+    prog.style.setProperty('--p',max>0?Math.min(scrollY/max,1):0);
+  }
+  addEventListener('scroll',onScroll,{passive:true});onScroll();
+  if(!reduce){
+    document.addEventListener('pointermove',function(e){
+      var t=e.target.closest?e.target.closest('.tile,.grid6 a'):null;
+      if(!t)return;
+      var r=t.getBoundingClientRect();
+      t.style.setProperty('--mx',(e.clientX-r.left)+'px');
+      t.style.setProperty('--my',(e.clientY-r.top)+'px');
+    },{passive:true});
+  }
 })();
 </script>
 </body>
